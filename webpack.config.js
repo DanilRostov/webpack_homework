@@ -2,6 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const autoprefixer = require('autoprefixer');
 
 module.exports = {
     mode: 'development',
@@ -16,18 +17,28 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.css$/,
+                test: /\.(css|sass)$/,
                 use: [
+                    'style-loader',
+                    MiniCssExtractPlugin.loader,
                     {
-                        loader: MiniCssExtractPlugin.loader,
+                        loader: 'css-loader',
                         options: {
-                            publicPath: '../'
+                            modules: true,
+                            localIdentName: '[local]__[hash:base64:5]'
                         }
                     },
-                    'style-loader',
-                    'css-loader',
-                    'postcss-loader',
                     'sass-loader',
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            plugins: [
+                                autoprefixer({
+                                    browsers: ['ie >= 8', 'last 5 version']
+                                })
+                            ]
+                        }
+                    }
                 ]
             },
             {
@@ -41,11 +52,12 @@ module.exports = {
     plugins: [
         // new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({
-            title: 'Output Management'
+            template: path.resolve(__dirname, 'src', 'index.html'),
+            filename: 'index.html',
+            title: 'Webpack Homework'
         }),
         new MiniCssExtractPlugin({
-            filename: "[name].css",
-            chunkFilename: "[id].css"
+            filename: "style__[contenthash:5].css"
         })
     ],
     devServer: {
